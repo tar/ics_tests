@@ -1,4 +1,4 @@
-package ru.spbstu.qsp.source;
+package ru.spbstu.qsp.codereview;
 
 
 import java.util.ArrayList;

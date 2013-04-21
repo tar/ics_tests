@@ -22,6 +22,22 @@
 		</dependency>
 
 	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<systemProperties>
+						<property>
+							<name>log4j.configuration</name>
+							<value>file:src/test/resources/log4j.xml</value>
+						</property>
+					</systemProperties>
+		            <redirectTestOutputToFile>true</redirectTestOutputToFile>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 	<profiles>
 		<profile>
 			<id>no-tests</id>
