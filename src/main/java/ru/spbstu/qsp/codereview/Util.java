@@ -1,4 +1,5 @@
-package utils;
+package ru.spbstu.qsp.codereview;
+
 
 import java.io.BufferedReader;
 import java.io.File;

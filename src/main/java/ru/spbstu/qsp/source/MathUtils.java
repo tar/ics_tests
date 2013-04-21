@@ -1,4 +1,5 @@
-package util;
+package ru.spbstu.qsp.source;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,4 +1,5 @@
-package utils;
+package ru.spbstu.qsp.codereview;
+
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;

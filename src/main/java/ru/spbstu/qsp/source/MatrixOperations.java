@@ -1,4 +1,5 @@
-package util;
+package ru.spbstu.qsp.source;
+
 
 public class MatrixOperations {
     
