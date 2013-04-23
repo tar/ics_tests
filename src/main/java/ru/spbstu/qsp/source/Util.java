@@ -1,16 +1,10 @@
 package ru.spbstu.qsp.source;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.math.BigInteger;
-import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
@@ -21,7 +15,6 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
@@ -266,35 +259,6 @@ public final class Util {
 		return bytes;
 	}
 
-	public static String trimMy(String str) {
-		StringTokenizer tokenizer = new StringTokenizer(str, "\n");
-		StringBuilder builder = new StringBuilder();
-		while (tokenizer.hasMoreTokens()) {
-			builder.append(tokenizer.nextToken().trim()).append('\n');
-		}
-		return builder.toString();
-	}
-
-	public static String trimUrl(String str) {
-		str = str.trim().toLowerCase();
-		int length = str.length();
-		int i = 0;
-		while (i < length && BAD_URL_CHARS.contains(str.charAt(i))) {
-			++i;
-		}
-
-		int j = length - 1;
-		while (j >= 0 && BAD_URL_CHARS.contains(str.charAt(j))) {
-			--j;
-		}
-
-		if (i < j && (i > 0 || j < length - 1)) {
-			return str.substring(i, j + 1);
-		} else {
-			return str;
-		}
-	}
-
 	public static String replaceQuotes(String title) {
 		if (title == null || !title.contains("\"")) {
 			return title;
@@ -316,186 +280,6 @@ public final class Util {
 		}
 		builder.append(title.substring(lastQuoteIndex + 1));
 		return builder.toString();
-	}
-
-	public static void saveTextToFile(String path, String text) {
-		try {
-			FileWriter fw = new FileWriter(new File(path), true);
-			fw.write(text);
-			fw.write("\r" + "\n");
-			fw.close();
-		} catch (IOException e) {
-			_logger.error(e);
-		}
-	}
-
-	public static void deleteFolder(String path) {
-		File file = new File(path);
-		if (!file.exists()) {
-			_logger.warn("Could not delete, because not exists: " + path);
-			return;
-		}
-		if (file.isDirectory()) {
-			for (File child : file.listFiles()) {
-				deleteFolder(child.getPath());
-			}
-		}
-		if (!file.delete()) {
-			_logger.warn("Could not delete: " + path);
-			return;
-		}
-	}
-
-	public static String cleanHRef(String query) {
-		String trimQuery = query.replace(" ", "").toLowerCase();
-		if (trimQuery.contains("<ahref=") && trimQuery.contains("</a>")) {
-			StringBuilder builder = new StringBuilder();
-			boolean isAdd = true;
-			for (int i = 0; i < query.length(); ++i) {
-				char c = query.charAt(i);
-				if (c == '<') {
-					isAdd = false;
-					continue;
-				}
-				if (c == '>') {
-					isAdd = true;
-					continue;
-				}
-				if (isAdd) {
-					builder.append(c);
-				}
-			}
-			return builder.toString();
-		}
-		return query;
-	}
-
-	/**
-	 * method for coping files
-	 * 
-	 * @param in
-	 *            - file from which to copy
-	 * @param out
-	 *            - file in which copies
-	 * @throws IOException
-	 */
-	public static void copyFile(File in, File out) throws IOException {
-		FileChannel inChannel = new FileInputStream(in).getChannel();
-		FileChannel outChannel = new FileOutputStream(out).getChannel();
-		try {
-			inChannel.transferTo(0, inChannel.size(), outChannel);
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			if (inChannel != null) {
-				inChannel.close();
-			}
-			if (outChannel != null) {
-				outChannel.close();
-			}
-		}
-	}
-
-	public static void copyDir(File in, File out) throws IOException {
-		out.mkdir();
-		for (File child : in.listFiles()) {
-			if (child.isFile()) {
-				copyFile(child,
-						new File(out.getAbsolutePath() + "/" + child.getName()));
-			}
-			if (child.isDirectory()) {
-				copyDir(child,
-						new File(out.getAbsolutePath() + "/" + child.getName()));
-			}
-		}
-	}
-
-	public static void runProcess(String[] args, File folder) {
-		try {
-			Process process = Runtime.getRuntime().exec(args, null, folder);
-			Thread thread = readProcessOutput(process.getInputStream());
-			Thread threadError = readProcessErrorOutput(process
-					.getErrorStream());
-			thread.join();
-			threadError.join();
-			int status = process.waitFor();
-			if (status == 0) {
-				_logger.info("PROCESS STATUS=" + status);
-			} else {
-				_logger.error("Process exit with status " + status + " !!!");
-			}
-		} catch (IOException e) {
-			_logger.error(e);
-		} catch (InterruptedException e) {
-			_logger.error(e);
-		}
-	}
-
-	public static Thread readProcessOutput(final InputStream is) {
-		Thread thread = new Thread(new Runnable() {
-			public void run() {
-				InputStreamReader isr = new InputStreamReader(is);
-				BufferedReader br = new BufferedReader(isr);
-				String line = null;
-				try {
-					while ((line = br.readLine()) != null) {
-						_logger.info(line);
-					}
-				} catch (IOException e) {
-					_logger.error("IOException while reading process output", e);
-				} finally {
-					try {
-						br.close();
-						isr.close();
-						is.close();
-					} catch (IOException e) {
-						_logger.error(
-								"IOException while closing reading process output",
-								e);
-					}
-				}
-			}
-		});
-		thread.start();
-		return thread;
-	}
-
-	public static Thread readProcessErrorOutput(final InputStream is) {
-		Thread thread = new Thread(new Runnable() {
-			public void run() {
-				InputStreamReader isr = new InputStreamReader(is);
-				BufferedReader br = new BufferedReader(isr);
-				String line = null;
-				try {
-					while ((line = br.readLine()) != null) {
-						if (line.contains("BouncyCastleProvider")) {
-							continue;
-						}
-						if (line.startsWith("Error")
-								|| line.startsWith("\"Error")) {
-							// _logger.info(line);
-						} else {
-							_logger.error(line);
-						}
-					}
-				} catch (IOException e) {
-					_logger.error(
-							"IOException while reading error process output", e);
-				} finally {
-					try {
-						br.close();
-						isr.close();
-						is.close();
-					} catch (IOException e) {
-						_logger.error(
-								"IOException while closing reading error process output",
-								e);
-					}
-				}
-			}
-		});
-		thread.start();
-		return thread;
 	}
 
 	public static boolean isDouble(String str) {
@@ -523,7 +307,7 @@ public final class Util {
 	}
 
 	public static Date convertStringToDate(String text, String template) {
-		if ((text == null) || (text.equals("")))
+		if (isNullOrEmpty(text) || isNullOrEmpty(template))
 			return null;
 		Locale locale = Locale.ENGLISH;
 		DateFormat dateFormat = new SimpleDateFormat(template, locale);
@@ -535,7 +319,7 @@ public final class Util {
 	}
 
 	public static String convertDateToString(Date date, String template) {
-		if ((date == null))
+		if (date == null || isNullOrEmpty(template))
 			return null;
 		Locale locale = Locale.ENGLISH;
 		DateFormat dateFormat = new SimpleDateFormat(template, locale);
@@ -546,53 +330,4 @@ public final class Util {
 		}
 	}
 
-	public static String strOrEmpty(String str) {
-		if (str == null)
-			return "";
-		return str.equals("null") ? "" : str;
-	}
-
-	public static String strOrNull(String str) {
-		if (str == null)
-			return null;
-		return str.equals("null") ? null : str;
-	}
-
-	public static boolean strToBoolean(String str) {
-		if (str != null && str.equals("true"))
-			return true;
-		return false;
-
-	}
-
-	public static String readTextFromInputStream(InputStream in) {
-		StringBuilder text = new StringBuilder();
-		InputStreamReader inReader = new InputStreamReader(in);
-		BufferedReader reader = new BufferedReader(inReader);
-		String line = null;
-		try {
-			while ((line = reader.readLine()) != null) {
-				text.append(line).append('\n');
-			}
-			reader.close();
-			inReader.close();
-		} catch (IOException e) {
-			_logger.error(e);
-		}
-		return text.toString();
-	}
-
-	public static String loadTextFromFileWithResourseAsStream(String path) {
-		try {
-			InputStream input = Util.class.getResourceAsStream(path);
-			String text = readTextFromInputStream(input);
-			input.close();
-			return text;
-		} catch (FileNotFoundException e) {
-			_logger.error(e);
-		} catch (IOException e) {
-			_logger.error(e);
-		}
-		return null;
-	}
 }

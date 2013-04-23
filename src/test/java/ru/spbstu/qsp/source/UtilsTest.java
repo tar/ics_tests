@@ -1,8 +1,16 @@
 package ru.spbstu.qsp.source;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -133,11 +141,12 @@ public class UtilsTest extends TestCase {
 		assertTrue(Arrays.equals(resultAsArray, sortedResultArray));
 		_logger.info("---------------------------------------------");
 	}
+
 	@org.junit.Test
 	public void testStrToInt() {
 		_logger.info("---------------Test strToInt()----------------");
 		_logger.info("Test null string");
-		assertNull(Util.strToInt(null));		
+		assertNull(Util.strToInt(null));
 		_logger.info("Test empty string");
 		assertNull(Util.strToInt(""));
 		_logger.info("Test invalid string");
@@ -147,11 +156,12 @@ public class UtilsTest extends TestCase {
 		assertEquals(Integer.valueOf(-1), Util.strToInt("-1"));
 		_logger.info("---------------------------------------------");
 	}
+
 	@org.junit.Test
 	public void testParseYear() {
 		_logger.info("---------------Test parseYear()----------------");
 		_logger.info("Test null string");
-		assertNull(Util.parseYear(null));		
+		assertNull(Util.parseYear(null));
 		_logger.info("Test empty string");
 		assertNull(Util.parseYear(""));
 		_logger.info("Test invalid string");
@@ -161,6 +171,7 @@ public class UtilsTest extends TestCase {
 		assertEquals(Integer.valueOf(-1), Util.parseYear("-2013"));
 		_logger.info("---------------------------------------------");
 	}
+
 	@org.junit.Test
 	public void testgetBytesFromFile() {
 		_logger.info("---------------Test getBytesFromFile()----------------");
@@ -168,14 +179,121 @@ public class UtilsTest extends TestCase {
 		try {
 			assertNull(Util.getBytesFromFile(null));
 		} catch (IOException e) {
-		}		
+		}
+		byte[] fileData = "Test file reading data".getBytes(Charset
+				.forName("UTF-8"));
+		File fileToRead = new File("file.test");
+		try {
+			_logger.info("Test read file data");
+			FileChannel ch = new FileInputStream(fileToRead).getChannel();
+			ByteBuffer bb = ByteBuffer.wrap(fileData);
+			ch.write(bb);
+			ch.close();
+			byte[] result = Util.getBytesFromFile(fileToRead);
+			assertTrue(Arrays.equals(fileData, result));
+			_logger.info("Test read directory");
+			File directory = new File("/");
+			assertNull(Util.getBytesFromFile(directory));
+			fileToRead.delete();
+		} catch (FileNotFoundException e) {
+			_logger.error(e.getMessage());
+		} catch (IOException e) {
+			_logger.error(e.getMessage());
+		}
+		_logger.info("---------------------------------------------");
+	}
+
+	@org.junit.Test
+	public void testReplaceQuotes() {
+		_logger.info("---------------Test replace quotes()----------------");
+		_logger.info("Test null string");
+		assertNull(Util.replaceQuotes(null));
 		_logger.info("Test empty string");
-		assertNull(Util.parseYear(""));
-		_logger.info("Test invalid string");
-		assertNull(Util.strToInt("1915aa"));
-		_logger.info("Test str to int conversion");
-		assertEquals(Integer.valueOf(2013), Util.parseYear("2013"));
-		assertEquals(Integer.valueOf(-1), Util.parseYear("-2013"));
+		assertTrue(Util.replaceQuotes("").isEmpty());
+		_logger.info("Test string without quotes");
+		String test = "test";
+		assertEquals(test, Util.replaceQuotes(test));
+		_logger.info("Test replace quotes");
+		String result = Util.replaceQuotes("\"test\"");
+		assertTrue(result.startsWith("«") && result.endsWith("»"));
+		_logger.info("---------------------------------------------");
+	}
+
+	@org.junit.Test
+	public void testIsDouble() {
+		_logger.info("---------------Test isDouble()----------------");
+		_logger.info("Test null string");
+		assertFalse(Util.isDouble(null));
+		_logger.info("Test empty string");
+		assertFalse(Util.isDouble(""));
+		_logger.info("Test invalid double value");
+		assertFalse(Util.isDouble("1252.a"));
+		_logger.info("Test valid double value");
+		assertTrue(Util.isDouble("12.12"));
+		_logger.info("---------------------------------------------");
+	}
+
+	@org.junit.Test
+	public void testIsInteger() {
+		_logger.info("---------------Test isInteger()----------------");
+		_logger.info("Test null string");
+		assertFalse(Util.isInteger(null));
+		_logger.info("Test empty string");
+		assertFalse(Util.isInteger(""));
+		_logger.info("Test invalid integer value");
+		assertFalse(Util.isInteger("1a"));
+		_logger.info("Test double value");
+		assertFalse(Util.isInteger("1.1"));
+		_logger.info("Test valid integer value");
+		assertTrue(Util.isInteger("12"));
+		_logger.info("---------------------------------------------");
+	}
+
+	@org.junit.Test
+	public void testIsNullOrEmpty() {
+		_logger.info("---------------Test isNullOrEmpty()----------------");
+		_logger.info("Test null string");
+		assertTrue(Util.isNullOrEmpty(null));
+		_logger.info("Test empty string");
+		assertTrue(Util.isNullOrEmpty(""));
+		_logger.info("Test spaced string");
+		assertFalse(Util.isNullOrEmpty("   "));
+		_logger.info("---------------------------------------------");
+	}
+
+	@org.junit.Test
+	public void testConverStringtoDate() {
+		_logger.info("---------------Test converStringtoDate()----------------");
+		_logger.info("Test null date value");
+		assertNull(Util.convertStringToDate(null, "template"));
+		_logger.info("Test empty date value");
+		assertNull(Util.convertStringToDate("", "template"));
+		_logger.info("Test null template value");
+		assertNull(Util.convertStringToDate("date", null));
+		_logger.info("Test empty template value");
+		assertNull(Util.convertStringToDate("date", ""));
+		_logger.info("Test valid date");
+		Date date = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
+		assertEquals(sdf.format(date), sdf.format(Util.convertStringToDate(
+				sdf.format(date), "dd-mm-yyyy")));
+		_logger.info("---------------------------------------------");
+	}
+
+	@org.junit.Test
+	public void testConvertDateToString() {
+		_logger.info("---------------Test convertDateToString()----------------");
+		_logger.info("Test null date value");
+		assertNull(Util.convertDateToString(null, "template"));
+		_logger.info("Test null template value");
+		assertNull(Util.convertDateToString(new Date(), null));
+		_logger.info("Test empty template value");
+		assertNull(Util.convertDateToString(new Date(), ""));
+		_logger.info("Test valid date");
+		Date date = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-mm-yyyy");
+		assertEquals(sdf.format(date),
+				Util.convertDateToString(date, "dd-mm-yyyy"));
 		_logger.info("---------------------------------------------");
 	}
 }
