@@ -167,8 +167,6 @@ public class MatrixOperations {
 			return null;
 		if (vectorA.length == 0 || vectorB.length == 0)
 			return null;
-		if (vectorA.length != vectorB.length)
-			return null;
 		int rowNum = vectorA.length;
 		int colNum = vectorB.length;
 

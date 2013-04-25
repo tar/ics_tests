@@ -30,7 +30,6 @@ public class MathUtils {
                 sum += Math.pow(ar[i], order);
                 count++;
             }
-        System.out.println(sum);
         if (count == 0)
             return Double.NaN;
         return Math.pow(sum / count, 1.0 / Math.abs(order));
@@ -77,7 +76,7 @@ public class MathUtils {
                 counter++;
                 sum += ar[i];
             }
-        if (counter <= 1)
+        if (counter == 0)
             return Double.NaN;
         return sum / counter;
     }
@@ -97,11 +96,12 @@ public class MathUtils {
     public static Double stndDevOfArray(Double[] vals, double mean) {
         if (vals == null)
             return Double.NaN;
-        if (vals.length == 0)
+        int count = vals.length;
+        if (count == 0)
             return Double.NaN;
-        if (vals.length < 2)
+        if (count < 2)
             return 0.0;
-        int count = 0;
+        count = 0;
         double std = 0.;
         for (int i = 0; i < vals.length; i++)
             if (vals[i] != null) {
@@ -109,7 +109,7 @@ public class MathUtils {
                 std += dev * dev;
                 count++;
             }
-        if (count <= 1)
+        if (count < 2)
             return Double.NaN;
         return Math.sqrt(std / (count - 1));
     }
@@ -117,20 +117,21 @@ public class MathUtils {
     public static Double stndDevOfArray(double[] vals, double mean) {
         if (vals == null)
             return Double.NaN;
-        if (vals.length == 0)
+        int counter = vals.length;
+        if (counter == 0)
             return Double.NaN;
-        if (vals.length < 2)
+        if (counter < 2)
             return 0.0;
+        counter = 0;
         double std = 0.;
-        int counter = 0;
         for (int i = 0; i < vals.length; i++) {
-            double dev = vals[i] - mean;
             if (!Double.isInfinite(dev) && !Double.isNaN(dev)) {
+            	double dev = vals[i] - mean;
                 counter++;
                 std += dev * dev;
             }
         }
-        if (counter <= 1)
+        if (counter < 2)
             return Double.NaN;
         return Math.sqrt(std / (counter - 1));
     }

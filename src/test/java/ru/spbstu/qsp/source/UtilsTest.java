@@ -10,6 +10,8 @@ import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -57,6 +59,7 @@ public class UtilsTest extends TestCase {
 
 	@org.junit.Test
 	public void testTrimOrNull() {
+		
 		_logger.info("---------------Test trimOrNull()----------------");
 		_logger.info("Test null string");
 		assertNull(Util.trimOrNull(null));

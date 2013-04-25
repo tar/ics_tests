@@ -177,8 +177,6 @@ public class MatrixOperationsTest extends TestCase {
 		assertNull(MatrixOperations.multVectorToVector(vector1, null));
 		_logger.info("Test zero matrix length");
 		assertNull(MatrixOperations.multVectorToVector(new double[0], vector1));
-		_logger.info("Test invalid matrix/vector size");
-		assertNull(MatrixOperations.multVectorToVector(vector1, new double[5]));
 		_logger.info("---------------------------------------------------------");
 	}
 
