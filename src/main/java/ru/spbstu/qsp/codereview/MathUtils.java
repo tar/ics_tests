@@ -125,8 +125,8 @@ public class MathUtils {
         counter = 0;
         double std = 0.;
         for (int i = 0; i < vals.length; i++) {
+            double dev = vals[i] - mean;
             if (!Double.isInfinite(dev) && !Double.isNaN(dev)) {
-            	double dev = vals[i] - mean;
                 counter++;
                 std += dev * dev;
             }
