@@ -11,10 +11,15 @@
 			<param name="ConversionPattern" value="%-5p [%d{dd MMM yyyy HH:mm:ss}] %c{1} - %m%n" />
 		</layout>
 	</appender>
-
-    <logger name="ru.spbstu" additivity="false">
-        <level value="DEBUG"/>
-        <appender-ref ref="stdout"/>
-    </logger>
+	<loggers>
+		<logger name="ru.spbstu" additivity="false">
+			<level value="DEBUG" />
+			<appender-ref ref="stdout" />
+		</logger>
+		<root>
+			<level value="WARN" />
+			<appender-ref ref="stdout" />
+		</root>
+	</loggers>
 
 </log4j:configuration>
